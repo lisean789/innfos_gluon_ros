@@ -114,7 +114,7 @@
       lower="-2.79"
       upper="2.79"
       effort="30"
-      velocity="3.14" />
+      velocity="6.28" />
   </joint>
   <link
     name="2_Link">
@@ -172,7 +172,7 @@
       lower="-1.54"
       upper="1.54"
       effort="30"
-      velocity="3.14" />
+      velocity="12.56" />
   </joint>
   <link
     name="3_Link">
@@ -230,7 +230,7 @@
       lower="-2.79"
       upper="2.79"
       effort="30"
-      velocity="3.14" />
+      velocity="12.56" />
   </joint>
   <link
     name="4_Link">
@@ -288,7 +288,7 @@
       lower="-2.79"
       upper="2.79"
       effort="30"
-      velocity="3.14" />
+      velocity="12.56" />
   </joint>
   <link
     name="5_Link">
@@ -346,7 +346,7 @@
       lower="-2.79"
       upper="2.79"
       effort="30"
-      velocity="3.14" />
+      velocity="12.56" />
   </joint>
   <link
     name="6_Link">
@@ -404,6 +404,6 @@
       lower="-2.79"
       upper="2.79"
       effort="30"
-      velocity="3.14" />
+      velocity="12.56" />
   </joint>
 </robot>

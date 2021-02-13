@@ -72,59 +72,35 @@ GluonHWInterface::GluonHWInterface(ros::NodeHandle &nh, urdf::Model *urdf_model)
     //Find the connected actuators and return the UnifiedID of all actuators found.
     uIDArray = pController->lookupActuators(ec);
     //If the size of the uIDArray is greater than zero, the connected actuators have been found
-    if (uIDArray.size() > 0)
-    {
- 
-        for(int k = 0; k < uIDArray.size(); k++) {
-          ActuatorController::UnifiedID actuator = uIDArray.at(k);
 
-          
-          //Enable actuator
-          ROS_INFO("actuator ID %d, ipAddr %s", actuator.actuatorID,actuator.ipAddress.c_str());
-          pController->enableActuator(actuator.actuatorID,actuator.ipAddress);
-          
+    pController->enableActuatorInBatch(uIDArray);
+    pController->activateActuatorModeInBantch(uIDArray,Actuator::Mode_Pos);
 
-          //activate profile position mode
-          pController->activateActuatorMode(actuator.actuatorID,Actuator::Mode_Profile_Pos);
-
-          
-          cout << "set position to 10 revolutions " << endl;
-          pController->setPosition(actuator.actuatorID,0);
-          //std::this_thread::sleep_for(std::chrono::seconds(1));
-          std::this_thread::sleep_for(std::chrono::milliseconds(200));
-          
-        }
-
-        for(int k = 0; k < uIDArray.size(); k++) {
-          ActuatorController::UnifiedID actuator = uIDArray.at(k);
-
-          //activate profile position mode
-          pController->activateActuatorMode(actuator.actuatorID,Actuator::Mode_Pos);
-        }
-
-        //Disable all connected actuators
-        //pController->disableAllActuators();
-        //insure that all actuators have been closed
-        //std::this_thread::sleep_for(std::chrono::milliseconds(200));
-    }
-    else
-    {
-        cout << "Connected error code:" << hex << ec << endl;
-    }
+    if (!uIDArray.size() > 0)
+      cout << "Connected error code:" << hex << ec << endl;
+   
   ROS_INFO_NAMED("gluon_hw_interface", "GluonHWInterface Ready.");
 }
 
 void GluonHWInterface::read(ros::Duration &elapsed_time)
 {
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  //
-  // FILL IN YOUR READ COMMAND FROM USB/ETHERNET/ETHERCAT/SERIAL ETC HERE
-  //
-  // ----------------------------------------------------
-  // ----------------------------------------------------
-  // ----------------------------------------------------
+  std::size_t joint_id_max = num_joints_;
+  if (joint_id_max >= AXIS_JOINT_INDEX_MAX)
+    joint_id_max = AXIS_JOINT_INDEX_MAX;
+
+  for (std::size_t joint_id = 0; joint_id < joint_id_max; ++joint_id)
+  {  
+    ActuatorController::UnifiedID actuator = uIDArray.at(joint_id);
+    pController->requestCVPValue(actuator.actuatorID);
+  }
+
+  ActuatorController::processEvents();
+
+  for (std::size_t joint_id = 0; joint_id < joint_id_max; ++joint_id)
+  {  
+    ActuatorController::UnifiedID actuator = uIDArray.at(joint_id);
+    joint_position_[joint_id] = POS_TO_RAD(pController->getPosition(actuator.actuatorID, false));
+  }
 }
 
 void GluonHWInterface::write(ros::Duration &elapsed_time)
@@ -138,11 +114,9 @@ void GluonHWInterface::write(ros::Duration &elapsed_time)
 
   for (std::size_t joint_id = 0; joint_id < joint_id_max; ++joint_id)
   {
-    joint_position_[joint_id] = joint_position_command_[joint_id];
-  //ROS_INFO("GluonHWInterface::write: joint id %ld, name %s, position %f", joint_id,joint_names_[joint_id].c_str(), joint_position_[joint_id]);
     ActuatorController::UnifiedID actuator = uIDArray.at(joint_id);
-    ROS_INFO("jointstate_%lu, %s, %f", joint_id+1, joint_names_[joint_id].c_str(), joint_position_[joint_id]);
-	pController->setPosition(actuator.actuatorID, RAD_TO_POS(joint_position_command_[joint_id]));
+    //ROS_INFO("jointstate_%lu, %s, %f", joint_id+1, joint_names_[joint_id].c_str(), joint_position_[joint_id]);
+	  pController->setPosition(actuator.actuatorID, RAD_TO_POS(joint_position_command_[joint_id]));
   }
 }
 
