@@ -5,7 +5,7 @@ This packages is to enable INNFOS gluon to be controlled by a 3Dconnexon spacena
 This package is a modification based on:
 https://github.com/innfos/ros_gluon
 
-Dependicies in it must be installed. I have changed its hardware interface a bit, so you can start launching it in any position. However, you have to have every joint encoder correctly configured beforehand. Use the INNFOS Actuator Studio to to set LPH on and correctly home the 0 of each joint.
+Dependicies in it must be installed. I have changed its hardware interface a bit, so you can start launching the arm in any joint position. However, you have to have every joint encoder correctly configured beforehand. Use the INNFOS Actuator Studio to to set LPH on and correctly home the 0 of each joint.
 
 
 Additinoal dependency:
